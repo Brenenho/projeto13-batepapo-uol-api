@@ -176,11 +176,10 @@ setInterval(async () => {
     try {
         const participants = await db.collection("participants").find().toArray()
         const data = dayjs().format("HH:mm:ss")
-        const data2 = dayjs().subtract(10, 'second').format("HH:mm:ss")
 
         participants.forEach(async (participant) => {
-            if (participant.lastStatus < Date.now() - 10000) {
-                await db.collection("participants").deleteOne({ _id: ObjectId(participant._id) })
+            if (Date.now() - participant.lastStatus > 10000) {
+                await db.collection("participants").deleteOne({ _id: new ObjectId(participant._id) })
                 const message = {
                     from: participant.name,
                     to: 'Todos',
