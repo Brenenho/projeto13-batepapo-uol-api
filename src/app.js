@@ -98,6 +98,14 @@ app.post("/messages", async (req, res) => {
         return res.sendStatus(422)
     }
 
+    if (!from) return res.sendStatus(422)
+
+    if (from) {
+        const participant = await db.collection("participants").findOne({ name: from })
+        if (!participant) return res.sendStatus(422)
+    }
+
+
     try {
         const participant = await db.collection("participants").findOne({ name: from })
         if (!participant) return res.sendStatus(400)
