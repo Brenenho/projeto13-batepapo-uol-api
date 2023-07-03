@@ -34,7 +34,7 @@ app.post("/participants", async (req, res) => {
 
     if (validation.error) {
 
-        return res.sendStatus(407)
+        return res.sendStatus(422)
     }
 
     try {
@@ -95,7 +95,7 @@ app.post("/messages", async (req, res) => {
     const validation = schema.validate(req.body, { abortEarly: false })
 
     if (validation.error) {
-        return res.sendStatus(407)
+        return res.sendStatus(422)
     }
 
     try {
@@ -159,9 +159,9 @@ app.post("/status", async (req, res) => {
 
         if (user) {
             const participant = await db.collection("participants").findOne({ name: user })
-            if (!participant) return res.sendStatus(400)
+            if (!participant) return res.sendStatus(404)
 
-            await db.collection("participants").updateOne({ name: user }, { $set: { lastStatus: data } })
+            await db.collection("participants").updateOne({ name: user }, { $set: { lastStatus: Date.now() } })
             res.sendStatus(200)
 
 
@@ -179,7 +179,7 @@ setInterval(async () => {
         const data2 = dayjs().subtract(10, 'second').format("HH:mm:ss")
 
         participants.forEach(async (participant) => {
-            if (participant.lastStatus < data2) {
+            if (participant.lastStatus < Date.now() - 10000) {
                 await db.collection("participants").deleteOne({ _id: ObjectId(participant._id) })
                 const message = {
                     from: participant.name,
